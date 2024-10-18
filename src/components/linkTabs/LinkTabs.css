@@ -1,0 +1,32 @@
+.tabs {
+    width: 100%;
+    margin-right: 1rem;
+}
+
+.tab {
+    padding: 1em;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 16px;
+    outline: none;
+    transition: color 200ms, background-color 200ms;
+}
+
+.tab:hover {
+    cursor: pointer;
+}
+
+.tab.active {
+    color: rgb(184, 116, 196);
+    background-color: #dbeafe;
+    border-bottom: 2px solid #2563eb;
+}
+
+.tab.inactive {
+    color: #6b7280;
+}
+
+.tab.inactive:hover {
+    color: #29313d;
+    filter: drop-shadow(0 0 1rem crimson)
+}
