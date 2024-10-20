@@ -1,8 +1,7 @@
 import React from 'react';
-import './DefaultLayout.css';
 import Navigation from '../components/navigation/Navigation';
-import { LoadingProvider } from '../contexts/LoadingContext';
-import LoaderSpinner from '../ui/loaderSpinner/LoaderSpinner';
+import './DefaultLayout.css';
+import Container from '../ui/container/Container';
 
 interface DefaultLayoutProps {
     children: React.ReactNode;
@@ -10,15 +9,12 @@ interface DefaultLayoutProps {
 
 function DefaultLayout({ children }: DefaultLayoutProps) {
     return (
-        <LoadingProvider>
-            <LoaderSpinner />
-            <div className="layout">
-                <Navigation />
-                <main className="layout-main">
-                    {children}
-                </main>
-            </div>
-        </LoadingProvider>
+        <div className="layout">
+            <Navigation />
+            <Container maxWidth="1200px" padding="20px">
+                {children}
+            </Container>
+        </div>
     );
 }
 

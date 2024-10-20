@@ -1,24 +1,25 @@
-import { Line } from 'react-chartjs-2';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import './WeatherChart.css';
 
-function WeatherChart() {
-    const data = {
-        labels: ['12:00', '13:00', '14:00', '15:00', '16:00', '17:00'],
-        datasets: [
-            {
-                label: 'Температура',
-                data: [22, 23, 25, 24, 22, 21],
-                fill: false,
-                borderColor: 'rgb(75, 192, 192)',
-                tension: 0.1
-            }
-        ]
-    };
+interface WeatherChartProps {
+    data: { time: string; temp: number }[];
+}
 
+function WeatherChart({ data }: WeatherChartProps) {
+    console.log(data);
     return (
         <div className="weather-chart">
-            <h2>Прогноз погоди на день</h2>
-            <Line data={data} />
+            <ResponsiveContainer width={500}
+                height={150}>
+                <LineChart
+                    data={data}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="time" />
+                    <YAxis />
+                    <Tooltip />
+                    <Line type="monotone" dataKey="temp" stroke="#8884d8" strokeWidth={2} />
+                </LineChart>
+            </ResponsiveContainer>
         </div>
     );
 }

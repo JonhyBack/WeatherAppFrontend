@@ -4,6 +4,7 @@ import Input from '../../ui/input/Input';
 import './LoginModal.css'
 import AuthService from '../../services/AuthService';
 import SubmitButton from '../../ui/submitButton/SubmitButton';
+import { useLoading } from '../../contexts/LoadingContext';
 
 interface LoginModalProps {
     onClose: () => void;
@@ -14,7 +15,7 @@ function LoginModal({ onClose }: LoginModalProps) {
     const [password, setPassword] = useState<string>('');
     const [passwordError, setPasswordError] = useState<string>('');
     const [loginError, setLoginError] = useState<string>('');
-    const [loading, setLoading] = useState<boolean>(false);
+    const { isLoading, setLoading } = useLoading();
 
     const passwordRegex = /(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*]).{6,}/
     const passwordFormatText = 'Password must contain at least one number, one uppercase letter, one lowercase letter, and one special character.'
@@ -33,8 +34,7 @@ function LoginModal({ onClose }: LoginModalProps) {
         setLoading(true);
 
         try {
-            const authService = new AuthService();
-            await authService.login({ username, password });
+            await AuthService.login({ username, password });
 
             console.log('Login successful!');
             onClose();
@@ -64,7 +64,7 @@ function LoginModal({ onClose }: LoginModalProps) {
                     format={passwordFormatText}
                     required />
                 {loginError && <p className="error-message">{loginError}</p>}
-                <SubmitButton label='Login' loading={loading} />
+                <SubmitButton label='Login' loading={isLoading} />
             </form>
         </ModalDialog>
     );

@@ -1,0 +1,47 @@
+.toggle-container {
+    position: relative;
+    display: inline-flex;
+    background-color: #e5e7eb;
+    border-radius: 9999px;
+    padding: 4px;
+}
+
+.slider {
+    position: absolute;
+    width: 50%;
+    height: calc(100% - 8px);
+    background-color: #2563eb;
+    border-radius: 9999px;
+    transition: all 0.3s ease-in-out;
+}
+
+.slider.left {
+    left: 4px;
+}
+
+.slider.right {
+    left: calc(47%)
+}
+
+.toggle-button {
+    position: relative;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.3s ease-in-out;
+}
+
+.toggle-button:focus {
+    outline: none;
+}
+
+.toggle-button.active {
+    color: white;
+}
+
+.toggle-button:not(.active) {
+    color: #4b5563;
+}

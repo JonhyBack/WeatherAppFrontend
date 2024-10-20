@@ -1,11 +1,13 @@
 import { useLoading } from '../../contexts/LoadingContext';
-import './LoaderSpinner.css';
+import './PreloaderSpinner.css';
 
 
-function LoaderSpinner() {
+function PreloaderSpinner() {
     const { isLoading } = useLoading();
 
     if (!isLoading) return null;
+
+    
 
     return (
         <div className="overlay">
@@ -14,4 +16,4 @@ function LoaderSpinner() {
     );
 };
 
-export default LoaderSpinner;
+export default PreloaderSpinner;

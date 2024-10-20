@@ -1,13 +1,12 @@
-import WeatherCard from '../../components/weatherCard/WeatherCard';
-// import WeatherChart from '../../components/weatherChart/WeatherChart';
+import WeatherContainer from '../../components/weatherContainer/WeatherContainer';
+import DefaultLayout from '../../layouts/DefaultLayout';
 import './HomePage.css';
 
 function HomePage() {
     return (
-        <div className="home-page">
-            <WeatherCard />
-            {/* <WeatherChart /> */}
-        </div>
+        <DefaultLayout>
+            <WeatherContainer />
+        </DefaultLayout>
     );
 }
 

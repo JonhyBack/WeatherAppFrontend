@@ -1,46 +1,32 @@
 import React, { useState } from 'react';
 import LinkTabs from '../linkTabs/LinkTabs';
 import './Navigation.css';
-import LoginModal from '../loginModal/LoginModal';
-import SignUpModal from '../signUpModal/SignUpModal';
-import { useLoading } from '../../contexts/LoadingContext';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface NavButtonProps {
     onClick?: () => void;
     children: React.ReactNode;
+    to: string;
 }
 
-function NavButton({ onClick, children }: NavButtonProps) {
+function NavButton({ onClick, children, to }: NavButtonProps) {
     return (
-        <button className="nav-button" onClick={onClick}>{children}</button>
+        <Link to={to} className="nav-button" onClick={onClick}>{children}</Link>
     );
 }
 
 
 function Navigation() {
     const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
-    const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
-    const [isSignUpModalOpen, setIsSignUpModalOpen] = useState<boolean>(false);
-    // const { setLoading } = useLoading();
-    // setLoading(true);
-    const handleLoginOpenModal = () => {
-        setIsLoginModalOpen(true);
-    };
-
-    const handleLoginCloseModal = () => {
-        setIsLoginModalOpen(false);
-    };
-
-    const handleSignUpOpenModal = () => {
-        setIsSignUpModalOpen(true);
-    };
-
-    const handleSignUpCloseModal = () => {
-        setIsSignUpModalOpen(false);
-    };
+    const { token, username, logout } = useAuth();
 
     const toggleMenu = (): void => {
         setIsMenuOpen(!isMenuOpen);
+    };
+
+    const handleLogout = (): void => {
+        logout();
     };
 
     return (
@@ -56,8 +42,12 @@ function Navigation() {
                         <LinkTabs
                             tabs={[{ label: 'Головна', to: '/' },
                             { label: 'Обрані', to: '/favorites' }]} />
-                        <NavButton onClick={handleLoginOpenModal}>Увійти</NavButton>
-                        <NavButton onClick={handleSignUpOpenModal}>Зареєструватися</NavButton>
+
+                        {!token ? (<><NavButton to='/login'>Увійти</NavButton>
+                            <NavButton to='/signup'>Зареєструватися</NavButton></>) : (<>
+                                <div className='greetings'>Welcome, {username}!</div>
+                                <NavButton to='/' onClick={handleLogout}>Logout</NavButton>
+                            </>)}
                     </div>
                     <div className="burger-menu" onClick={toggleMenu}>
                         <div className={`burger-bar ${isMenuOpen ? 'open' : ''}`}></div>
@@ -66,8 +56,6 @@ function Navigation() {
                     </div>
                 </div>
             </nav >
-            {isLoginModalOpen && <LoginModal onClose={handleLoginCloseModal} />}
-            {isSignUpModalOpen && <SignUpModal onClose={handleSignUpCloseModal} />}
         </>
     );
 };

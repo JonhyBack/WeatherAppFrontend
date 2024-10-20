@@ -4,6 +4,7 @@ import Input from '../../ui/input/Input';
 import './SignUpModal.css'
 import SubmitButton from '../../ui/submitButton/SubmitButton';
 import AuthService from '../../services/AuthService';
+import { useLoading } from '../../contexts/LoadingContext';
 
 interface SignUpModalProps {
     onClose: () => void;
@@ -16,7 +17,7 @@ function SignUpModal({ onClose }: SignUpModalProps) {
     const [passwordError, setPasswordError] = useState<string>('');
     const [passwordsMatch, setPasswordsMatch] = useState<boolean>(true);
     const [signUpError, setSignUpError] = useState<string>('');
-    const [loading, setLoading] = useState<boolean>(false);
+    const { isLoading, setLoading } = useLoading();
 
     const passwordRegex = /(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*]).{6,}/
     const passwordFormatText = 'Password must contain at least one number, one uppercase letter, one lowercase letter, and one special character.'
@@ -39,8 +40,7 @@ function SignUpModal({ onClose }: SignUpModalProps) {
         setLoading(true);
 
         try {
-            const authService = new AuthService();
-            await authService.signup({ username, password });
+            await AuthService.signup({ username, password });
 
             console.log('Sign Up successful!');
             onClose();
@@ -81,7 +81,7 @@ function SignUpModal({ onClose }: SignUpModalProps) {
                     required />
                 {signUpError && <p className="error-message">{signUpError}</p>}
                 {!passwordsMatch && <p className="error-message">Passwords must match</p>}
-                <SubmitButton label='Sign Up' loading={loading} />
+                <SubmitButton label='Sign Up' loading={isLoading} />
             </form>
         </ModalDialog>
     );
