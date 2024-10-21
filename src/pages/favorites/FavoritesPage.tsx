@@ -15,7 +15,7 @@ function FavoritesPage() {
 
             await FavoriteService.remove(id);
             setFavorites(favorites.filter(favorite => favorite.id !== id));
-            
+
             return true;
         } catch (error) {
             console.error('Error deleting favorite:', error);
@@ -45,7 +45,11 @@ function FavoritesPage() {
     return (
         <DefaultLayout>
             {favorites.length > 0 &&
-                favorites.map((favorite, index) => <FavoritesContainer onDelete={handleDelete} key={index} locationFavorite={favorite} />)}
+                favorites.map((favorite, index) =>
+                    <FavoritesContainer
+                        onDelete={handleDelete}
+                        key={index}
+                        locationFavorite={favorite} />)}
         </DefaultLayout>
     );
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect, memo } from 'react';
+import { useState, useEffect } from 'react';
 import { useLoading } from '../../contexts/LoadingContext';
 import { IPService } from '../../services/IPService';
 import { ForecastData, WeatherService } from '../../services/WeatherService';
@@ -20,7 +20,7 @@ interface FavoritesContainerProps {
     onDelete?: () => void
 }
 
-const WeatherContainer = memo(({ onDelete }: FavoritesContainerProps) => {
+const WeatherContainer = ({ onDelete }: FavoritesContainerProps) => {
     const { setLoading } = useLoading();
     const [forecastData, setForecastData] = useState<ForecastData>();
     const [error, setError] = useState<string>('');
@@ -127,7 +127,7 @@ const WeatherContainer = memo(({ onDelete }: FavoritesContainerProps) => {
             )}
         </div>
     );
-});
+};
 
 export default WeatherContainer;
 
