@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import AuthService from '../services/AuthService';
+import { useLocation } from 'react-router-dom';
 
 interface AuthContextType {
     token: string | null;
@@ -12,22 +13,34 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [token, setToken] = useState<string | null>(null);
-    const [username, setUsername] = useState<string | null>(null);
+    const [token, setToken] = useState<string | null>(() => {
+        const token = AuthService.getAccessToken();
+        const expired = token && AuthService.isTokenExpired(token);
+
+        if (expired) return null;
+        return token;
+    });
+    const [username, setUsername] = useState<string | null>(AuthService.getUsername());
+    const location = useLocation();
 
     useEffect(() => {
         const setAuth = () => {
             const token = AuthService.getAccessToken();
             const username = AuthService.getUsername();
+            const expired = token && AuthService.isTokenExpired(token);
 
-            if (token && username) {
+            if (expired) {
+                AuthService.logout();
+                setToken(null);
+                setUsername(null);
+            } else if (token && username) {
                 setToken(token);
                 setUsername(username);
             }
         }
 
         setAuth();
-    }, []);
+    }, [location]);
 
     const login = async (credentials: { username: string, password: string }) => {
         try {

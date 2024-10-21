@@ -1,4 +1,5 @@
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
 const API_URL = "http://localhost:3000/auth"
 
@@ -35,6 +36,19 @@ class AuthService {
 
     static getUsername() {
         return localStorage.getItem('username');
+    }
+
+    static isTokenExpired(token: string): boolean {
+        try {
+            const decoded = jwtDecode(token);
+            const now = Math.floor(Date.now() / 1000);
+            const expired = decoded && decoded.exp !== undefined && decoded.exp < now;
+
+            console.log(expired, decoded);
+            return expired;
+        } catch (error) {
+            return true;
+        }
     }
 
     static async login(loginData: AuthData) {

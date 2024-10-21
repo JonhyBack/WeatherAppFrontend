@@ -11,8 +11,8 @@ import PrivateRoute from './PrivateRoute';
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
+    <BrowserRouter>
+      <AuthProvider>
         <LoadingProvider>
           <PreloaderSpinner />
           <Routes>
@@ -24,8 +24,8 @@ function App() {
             <Route path="/signup" element={<SignUpPage />} />
           </Routes>
         </LoadingProvider>
-      </BrowserRouter>
-    </AuthProvider>
+      </AuthProvider>
+    </BrowserRouter>
   )
 }
 

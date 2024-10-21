@@ -18,24 +18,25 @@ interface WeatherResponseData {
     weather: Weather[];
     name: string;
     dt: number;
+    sys: { country: string }
 }
 
 interface ForecastFiveResponeData {
     list: { main: Main, weather: Weather[], dt: Date }[];
-    city: { name: string };
+    city: { name: string, country: string };
 }
 
 export interface ForecastData {
     list: { dt: Date, main: Main, weather: Weather }[];
-    city: { name: string };
+    location: { city: string, country: string };
 }
 
 export class WeatherService {
-    public static async getWeather(city: string): Promise<ForecastData> {
+    public static async getWeather(city: string, countryCode?: string): Promise<ForecastData> {
         try {
             const response = await axios.get<WeatherResponseData>(WEATHER_API_URL + '/weather', {
                 params: {
-                    q: city,
+                    q: `${city}${countryCode ? ',' + countryCode : ''}`,
                     units: 'metric',
                     appid: API_KEY,
                 },
@@ -45,7 +46,7 @@ export class WeatherService {
                     dt: new Date(response.data.dt),
                     main: response.data.main,
                     weather: response.data.weather[0]
-                }], city: { name: response.data.name }
+                }], location: { city: response.data.name, country: response.data.sys.country }
             };
         } catch (error) {
             console.error('Error fetching weather data:', error);
@@ -53,11 +54,11 @@ export class WeatherService {
         }
     }
 
-    public static async getFiveDayForecast(city: string): Promise<ForecastData> {
+    public static async getFiveDayForecast(city: string, countryCode?: string): Promise<ForecastData> {
         try {
             const response = await axios.get<ForecastFiveResponeData>(WEATHER_API_URL + '/forecast', {
                 params: {
-                    q: city,
+                    q: `${city}${countryCode ? ',' + countryCode : ''}`,
                     units: 'metric',
                     appid: API_KEY,
                 },
@@ -68,7 +69,7 @@ export class WeatherService {
                     main: item.main,
                     weather: item.weather[0]
                 })),
-                city: response.data.city
+                location: { city: response.data.city.name, country: response.data.city.country }
             };
         } catch (error) {
             console.error('Error fetching forecast data:', error);

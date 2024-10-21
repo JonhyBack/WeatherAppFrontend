@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { useLoading } from '../../contexts/LoadingContext';
 import { IPService } from '../../services/IPService';
 import { ForecastData, WeatherService } from '../../services/WeatherService';
@@ -6,116 +6,129 @@ import './WeatherContainer.css';
 import WeatherChart from '../weatherChart/WeatherChart';
 import ToggleButton from '../toggleButton/ToggleButton';
 import SuggestionsSearch from '../suggestionsSearch/SuggestionsSearch';
+import FavoriteButton from '../favoriteButton/FavoriteButton';
+import FavoriteService from '../../services/FavoriteService';
+import { Suggestion } from '../../services/PlacesService';
+import WeatherInfo from '../weatherInfo/WeatherInfo';
+import Skeleton from '../../ui/skeleton/Skeleton';
+import ModalDialog from '../../ui/modalDialog/ModalDialog';
+import Button from '../../ui/button/Button';
+import CloseButton from '../../ui/closeButton/CloseButton';
 
-function WeatherContainer() {
-    const { setLoading } = useLoading();
+interface FavoritesContainerProps {
+    onDelete?: () => void
+}
+
+const WeatherContainer = memo(({ onDelete }: FavoritesContainerProps) => {
+    const { isLoading, setLoading } = useLoading();
     const [forecastData, setForecastData] = useState<ForecastData>();
     const [error, setError] = useState<string>('');
-    const [city, setCity] = useState<string>('');
+    const [modalInfo, setModalInfo] = useState<string>('');
+    const [modalConfirmDeletion, setModalConfirmDeletion] = useState<string>('');
+    const [location, setLocation] = useState<{ city: string, country: string } | null>(null);
     const [isToday, setIsToday] = useState(true);
 
     const handleToggle = () => {
         setIsToday(!isToday);
     };
 
+    const handleSuggestionSelect = (suggestion: Suggestion) => {
+        setLocation({ city: suggestion.city, country: suggestion.country });
+    };
+
+    const handleSetFavorite = async () => {
+        try {
+            setLoading(true);
+            if (!location) throw new Error();
+            await FavoriteService.create({ city: location.city, country: location.country });
+        } catch (error: any) {
+            setModalInfo(error.message)
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchWeatherData = async () => {
+        try {
+            if (!location) throw new Error();
+
+            setLoading(true);
+
+            if (isToday) {
+                const byDay = await WeatherService.getWeather(location.city, location.country);
+                setForecastData(byDay);
+            } else {
+                const byFiveDays = await WeatherService.getFiveDayForecast(location.city, location.country);
+                setForecastData(byFiveDays);
+            }
+            setError('');
+        } catch (err) {
+            console.error('Unable to fetch weather data or location', err);
+            setError('Unable to fetch weather data or location');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchWeatherData = async () => {
+        const fetchInitialLocation = async () => {
             try {
                 setLoading(true);
 
                 const location = await IPService.getClientLocation();
-                setCity(location.city);
+                setLocation(location);
 
-                const weather = await WeatherService.getWeather(location.city);
-                setForecastData(weather);
-                console.log(weather);
-
-                setLoading(false);
+                setError('');
             } catch (err) {
-                setError('Unable to fetch weather data or location');
+                console.error('Unable to fetch location', err);
+                setError('Unable to fetch location');
+            } finally {
                 setLoading(false);
             }
         };
 
-        fetchWeatherData();
+        fetchInitialLocation();
     }, []);
 
     useEffect(() => {
-        const fetchWeatherData = async () => {
-            try {
-                if (!city) return;
-
-                setLoading(true);
-
-                if (isToday) {
-                    const byDay = await WeatherService.getWeather(city);
-                    setForecastData(byDay);
-                } else {
-                    const byFiveDays = await WeatherService.getFiveDayForecast(city);
-                    setForecastData(byFiveDays);
-                }
-
-                setLoading(false);
-            } catch (err) {
-                setError('Unable to fetch weather data or location');
-                setLoading(false);
-            }
-        };
-
         fetchWeatherData();
-    }, [isToday]);
-
-    const calculateAverageTemperature = (forecastData: ForecastData) => {
-        if (forecastData.list.length === 0) return 0;
-
-        const totalTemperature = forecastData.list.reduce((sum, weather) => sum + weather.main.temp, 0);
-        const averageTemperature = totalTemperature / forecastData.list.length;
-
-        return averageTemperature.toFixed(1);
-    }
-
-    const formatTime = (time: number, i: number): string => {
-        const temp = time + i * 3;
-        if (temp >= 24) {
-            return (temp % 24).toString();
-        }
-        return temp.toString();
-    }
-
-    if (error) {
-        return <p>{error}</p>;
-    }
+    }, [isToday, location]);
 
     return (
-        forecastData && <div className="weather-container">
-            <SuggestionsSearch onSuggestionSelect={() => { }} />
-            <ToggleButton initialOnRight={isToday} onToggle={handleToggle} />
-            <h2>{city}</h2>
-            <div className="weather-info">
-                <img
-                    src={`https://openweathermap.org/img/wn/${forecastData.list[0].weather.icon}@2x.png`}
-                />
-                <div className="weather-details">
-                    <p className="weather-description">{forecastData.list[0].weather.description}</p>
-                    <p className="weather-temperature">{calculateAverageTemperature(forecastData)}°C</p>
-                </div>
-            </div>
-            <WeatherChart data={
-                isToday
-                    ? forecastData && [
-                        {
-                            temp: forecastData.list[0].main.temp,
-                            time: forecastData.list[0].dt.getHours().toString()
-                        }
-                    ]
-                    : forecastData?.list.map((w, i) => ({
-                        temp: w.main.temp,
-                        time: formatTime(w.dt.getHours(), i)
-                    }))
-            } />
+        <div className="weather-container">
+            <span style={{ display: 'inline-flex' }}>
+                <SuggestionsSearch onSuggestionSelect={handleSuggestionSelect} />
+                <FavoriteButton onClick={handleSetFavorite} />
+            </span>
+            <ToggleButton initialOnLeft={isToday} onToggle={handleToggle} />
+            {isLoading ? <Skeleton /> : forecastData ? (
+                <>
+                    <WeatherInfo fd={forecastData} />
+                    <WeatherChart data={forecastData} />
+                </>
+            ) : error}
+            {onDelete && <>
+                <CloseButton onClick={() => { setModalConfirmDeletion('Ви бажаєте видалити цей блок?') }} />
+                {modalConfirmDeletion && (
+                    <ModalDialog
+                        handleClose={() => setModalConfirmDeletion('')}
+                        title='Confim Deletion'
+                    >
+                        <p>{modalConfirmDeletion}</p>
+                        <Button label='Ok' onClick={onDelete} />
+                    </ModalDialog>
+                )}</>}
+            {modalInfo && (
+                <ModalDialog
+                    handleClose={() => setModalInfo('')}
+                    title='Info'
+                >
+                    <p>{modalInfo}</p>
+                </ModalDialog>
+            )}
         </div>
-
     );
-}
+})
 
 export default WeatherContainer;

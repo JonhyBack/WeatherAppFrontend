@@ -2,34 +2,34 @@ import { useState } from 'react';
 import './ToggleButton.css';
 
 interface ToggleButtonProps {
-    initialOnRight?: boolean;
+    initialOnLeft?: boolean;
     onToggle?: (isYearly: boolean) => void;
 }
 
 function ToggleButton({
-    initialOnRight = true,
+    initialOnLeft = true,
     onToggle,
 }: ToggleButtonProps) {
-    const [isOnRight, setIsOnRight] = useState(initialOnRight);
+    const [isOnLeft, setIsOnLeft] = useState(initialOnLeft);
 
-    const handleToggle = (newIsYearly: boolean) => {
-        setIsOnRight(newIsYearly);
+    const handleToggle = (toggle: boolean) => {
+        setIsOnLeft(toggle);
         if (onToggle) {
-            onToggle(newIsYearly);
+            onToggle(toggle);
         }
     };
 
     return (
         <div className="toggle-container">
-            <div className={`slider ${isOnRight ? 'left' : 'right'}`}></div>
+            <div className={`slider ${isOnLeft ? 'left' : 'right'}`}></div>
             <button
-                className={`toggle-button ${isOnRight ? 'active' : ''}`}
+                className={`toggle-button ${isOnLeft ? 'active' : ''}`}
                 onClick={() => handleToggle(true)}
             >
                 Current
             </button>
             <button
-                className={`toggle-button ${!isOnRight ? 'active' : ''}`}
+                className={`toggle-button ${!isOnLeft ? 'active' : ''}`}
                 onClick={() => handleToggle(false)}
             >
                 5 days
