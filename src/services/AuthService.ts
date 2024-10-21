@@ -1,5 +1,5 @@
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
+import { jwtDecode, JwtPayload } from "jwt-decode";
 
 const API_URL = "http://localhost:3000/auth"
 
@@ -13,34 +13,36 @@ interface BaseResponse {
     username: string;
 }
 
+interface Payload extends JwtPayload {
+    username?: string;
+}
+
 class AuthService {
     private static setAccessToken(token: string) {
         localStorage.setItem('access_token', token);
-    }
-
-    private static setUsername(username: string) {
-        localStorage.setItem('username', username);
     }
 
     private static removeAccessToken() {
         localStorage.removeItem('access_token');
     }
 
-    private static removeUsername() {
-        localStorage.removeItem('username');
-    }
-
     static getAccessToken() {
         return localStorage.getItem('access_token');
     }
 
-    static getUsername() {
-        return localStorage.getItem('username');
+    static getUsername(token: string) {
+        try {
+            const decoded = jwtDecode<Payload>(token);
+
+            return decoded.username;
+        } catch (error) {
+            return null;
+        }
     }
 
     static isTokenExpired(token: string): boolean {
         try {
-            const decoded = jwtDecode(token);
+            const decoded = jwtDecode<Payload>(token);
             const now = Math.floor(Date.now() / 1000);
             const expired = decoded && decoded.exp !== undefined && decoded.exp < now;
 
@@ -55,9 +57,9 @@ class AuthService {
         try {
             const response = await axios.post<BaseResponse>(`${API_URL}/login`, loginData);
 
-            const { access_token, username } = response.data;
+            const { access_token } = response.data;
+            const username = this.getUsername(access_token);
             this.setAccessToken(access_token);
-            this.setUsername(username);
 
             return {
                 token: access_token,
@@ -82,7 +84,6 @@ class AuthService {
 
     static logout() {
         this.removeAccessToken();
-        this.removeUsername();
     }
 }
 

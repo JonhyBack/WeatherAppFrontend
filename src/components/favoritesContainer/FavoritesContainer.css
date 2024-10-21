@@ -11,6 +11,13 @@
     padding: 20px;
     margin: 20px 10px;
     min-width: 300px;
-    width: 600px;
+    width: 650px;
     height: auto;
+}
+
+@media (max-width: 768px) {
+    .favorites-container {
+        width: 100%;
+        margin: 20px 0;
+    }
 }

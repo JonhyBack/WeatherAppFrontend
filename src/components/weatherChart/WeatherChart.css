@@ -1,3 +1,11 @@
 .weather-chart {
     margin-top: 20px;
+    width: 550px;
+}
+
+@media (max-width: 768px) {
+    .weather-chart {
+        width: 300px;
+        margin: 20px 0;
+    }
 }

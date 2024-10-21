@@ -10,7 +10,18 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 20px;
     margin: 20px 10px;
-    min-width: 300px;
-    width: 600px;
+    min-width: 360px;
+    width: 650px;
     height: auto;
+}
+
+.search-block {
+    display: inline-flex;
+}
+
+@media (max-width: 768px) {
+    .weather-container {
+        width: 100%;
+        margin: 20px 0;
+    }
 }

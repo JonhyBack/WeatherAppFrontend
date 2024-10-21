@@ -33,7 +33,7 @@ function WeatherChart({ data }: WeatherChartProps) {
 
     return (
         <div className="weather-chart">
-            <ResponsiveContainer width={500}
+            <ResponsiveContainer width="100%"
                 height={150}>
                 <LineChart
                     data={buildChartData()}>

@@ -5,11 +5,12 @@ import './FavoritesContainer.css';
 import WeatherChart from '../weatherChart/WeatherChart';
 import ToggleButton from '../toggleButton/ToggleButton';
 import WeatherInfo from '../weatherInfo/WeatherInfo';
-import FavoriteService, { FavoriteData } from '../../services/FavoriteService';
+import { FavoriteData } from '../../services/FavoriteService';
 import Skeleton from '../../ui/skeleton/Skeleton';
 import Button from '../../ui/button/Button';
 import CloseButton from '../../ui/closeButton/CloseButton';
 import ModalDialog from '../../ui/modalDialog/ModalDialog';
+import HorizontalLine from '../../ui/horizontalLine/HorizontalLine';
 
 interface FavoritesContainerProps {
     locationFavorite: FavoriteData;
@@ -18,7 +19,7 @@ interface FavoritesContainerProps {
 
 const FavoritesContainer = memo(
     ({ locationFavorite, onDelete }: FavoritesContainerProps) => {
-        const { isLoading, setLoading } = useLoading();
+        const { setLoading } = useLoading();
         const [forecastData, setForecastData] = useState<ForecastData>();
         const [error, setError] = useState<string>('');
         const [isToday, setIsToday] = useState(true);
@@ -53,8 +54,8 @@ const FavoritesContainer = memo(
                 }
                 setError('');
             } catch (err) {
-                console.error('Unable to fetch weather data or location', err);
-                setError('Unable to fetch weather data or location');
+                console.error('Unable to fetch weather data', err);
+                setError('Unable to fetch weather data');
             } finally {
                 setLoading(false);
             }
@@ -67,9 +68,10 @@ const FavoritesContainer = memo(
         return (
             <div className="favorites-container">
                 <ToggleButton initialOnLeft={isToday} onToggle={handleToggle} />
-                {isLoading ? <Skeleton /> : forecastData ? (
+                {!forecastData ? <Skeleton /> : forecastData ? (
                     <>
                         <WeatherInfo fd={forecastData} />
+                        <HorizontalLine />
                         <WeatherChart data={forecastData} />
                     </>
                 ) : error}

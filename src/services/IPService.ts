@@ -10,15 +10,13 @@ interface BaseResponse {
 export class IPService {
     static async getClientLocation(): Promise<BaseResponse> {
         try {
-            // const response = await axios.get<BaseResponse>(API_URL);
-            // return response.data;
+            const response = await axios.get<BaseResponse>(API_URL);
+            return response.data;
+        } catch (error) {
             return {
                 city: "Zaporizhzhya",
                 country: "UA"
-            }
-        } catch (error) {
-            console.error('Error fetching client IP/location:', error);
-            throw new Error('Failed to retrieve client location');
+            }; //handling api limits
         }
     }
 }

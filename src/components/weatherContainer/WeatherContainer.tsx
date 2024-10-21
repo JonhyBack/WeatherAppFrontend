@@ -14,13 +14,14 @@ import Skeleton from '../../ui/skeleton/Skeleton';
 import ModalDialog from '../../ui/modalDialog/ModalDialog';
 import Button from '../../ui/button/Button';
 import CloseButton from '../../ui/closeButton/CloseButton';
+import HorizontalLine from '../../ui/horizontalLine/HorizontalLine';
 
 interface FavoritesContainerProps {
     onDelete?: () => void
 }
 
 const WeatherContainer = memo(({ onDelete }: FavoritesContainerProps) => {
-    const { isLoading, setLoading } = useLoading();
+    const { setLoading } = useLoading();
     const [forecastData, setForecastData] = useState<ForecastData>();
     const [error, setError] = useState<string>('');
     const [modalInfo, setModalInfo] = useState<string>('');
@@ -51,9 +52,8 @@ const WeatherContainer = memo(({ onDelete }: FavoritesContainerProps) => {
 
     const fetchWeatherData = async () => {
         try {
-            if (!location) throw new Error();
-
             setLoading(true);
+            if (!location) return;
 
             if (isToday) {
                 const byDay = await WeatherService.getWeather(location.city, location.country);
@@ -64,8 +64,8 @@ const WeatherContainer = memo(({ onDelete }: FavoritesContainerProps) => {
             }
             setError('');
         } catch (err) {
-            console.error('Unable to fetch weather data or location', err);
-            setError('Unable to fetch weather data or location');
+            console.error('Unable to fetch weather data', err);
+            setError('Unable to fetch weather data');
         } finally {
             setLoading(false);
         }
@@ -74,8 +74,6 @@ const WeatherContainer = memo(({ onDelete }: FavoritesContainerProps) => {
     useEffect(() => {
         const fetchInitialLocation = async () => {
             try {
-                setLoading(true);
-
                 const location = await IPService.getClientLocation();
                 setLocation(location);
 
@@ -83,8 +81,6 @@ const WeatherContainer = memo(({ onDelete }: FavoritesContainerProps) => {
             } catch (err) {
                 console.error('Unable to fetch location', err);
                 setError('Unable to fetch location');
-            } finally {
-                setLoading(false);
             }
         };
 
@@ -97,14 +93,15 @@ const WeatherContainer = memo(({ onDelete }: FavoritesContainerProps) => {
 
     return (
         <div className="weather-container">
-            <span style={{ display: 'inline-flex' }}>
+            <span className='search-block'>
                 <SuggestionsSearch onSuggestionSelect={handleSuggestionSelect} />
                 <FavoriteButton onClick={handleSetFavorite} />
             </span>
             <ToggleButton initialOnLeft={isToday} onToggle={handleToggle} />
-            {isLoading ? <Skeleton /> : forecastData ? (
+            {!forecastData ? <Skeleton /> : forecastData ? (
                 <>
                     <WeatherInfo fd={forecastData} />
+                    <HorizontalLine />
                     <WeatherChart data={forecastData} />
                 </>
             ) : error}
@@ -118,7 +115,8 @@ const WeatherContainer = memo(({ onDelete }: FavoritesContainerProps) => {
                         <p>{modalConfirmDeletion}</p>
                         <Button label='Ok' onClick={onDelete} />
                     </ModalDialog>
-                )}</>}
+                )}
+            </>}
             {modalInfo && (
                 <ModalDialog
                     handleClose={() => setModalInfo('')}
@@ -129,6 +127,7 @@ const WeatherContainer = memo(({ onDelete }: FavoritesContainerProps) => {
             )}
         </div>
     );
-})
+});
 
 export default WeatherContainer;
+

@@ -1,0 +1,6 @@
+.horizontal-line {
+    width: 100%;
+    border: none;
+    border-top: solid; /* Makes it a line */
+  }
+  
